@@ -253,7 +253,6 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 
 pip install .
 skillsbank import registry.v3.json
-skillsbank rebuild-fts
 skillsbank normalize
 skillsbank doctor
 skillsbank search "security audit"

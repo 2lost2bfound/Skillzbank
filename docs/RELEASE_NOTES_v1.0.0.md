@@ -84,7 +84,6 @@ cd Skillzbank
 python3 -m venv .venv && source .venv/bin/activate
 pip install .
 skillsbank import registry.v3.json
-skillsbank rebuild-fts
 skillsbank doctor
 skillsbank search "security audit"
 ```
