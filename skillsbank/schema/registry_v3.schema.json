@@ -1,0 +1,2173 @@
+{
+  "$defs": {
+    "APIRequirement": {
+      "additionalProperties": false,
+      "description": "An external API or service required by a skill.",
+      "properties": {
+        "name": {
+          "description": "API/service name, e.g. OpenAI, Groq, GitHub",
+          "title": "Name",
+          "type": "string"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "credentials_needed": {
+          "default": false,
+          "title": "Credentials Needed",
+          "type": "boolean"
+        },
+        "source": {
+          "default": "unknown",
+          "description": "declared, inferred, unknown",
+          "title": "Source",
+          "type": "string"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "APIRequirement",
+      "type": "object"
+    },
+    "Capability": {
+      "additionalProperties": false,
+      "description": "A capability that a skill provides.",
+      "properties": {
+        "name": {
+          "description": "Original capability string from source",
+          "title": "Name",
+          "type": "string"
+        },
+        "canonical": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Canonical/taxonomy-normalized capability name",
+          "title": "Canonical"
+        },
+        "taxonomy_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Hierarchical taxonomy path, e.g. software_engineering.code_review",
+          "title": "Taxonomy Path"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Confidence in canonical mapping",
+          "title": "Confidence"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Capability",
+      "type": "object"
+    },
+    "CompatibilityEntry": {
+      "additionalProperties": false,
+      "description": "Compatibility status for a specific agent or ecosystem.",
+      "properties": {
+        "target": {
+          "description": "Agent/ecosystem name: claude, codex, opencode, gemini, mcp, generic_llm, cli_agent, etc.",
+          "title": "Target",
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/$defs/CompatibilityLevel",
+          "default": "UNKNOWN",
+          "description": "Compatibility level"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Specific compatibility notes or limitations",
+          "title": "Notes"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Confidence in this compatibility assessment",
+          "title": "Confidence"
+        },
+        "source": {
+          "default": "unknown",
+          "description": "declared, inferred, tested, unknown",
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "title": "CompatibilityEntry",
+      "type": "object"
+    },
+    "CompatibilityLevel": {
+      "description": "Compatibility status with an agent/ecosystem.",
+      "enum": [
+        "SUPPORTED",
+        "LIKELY_SUPPORTED",
+        "REQUIRES_ADAPTER",
+        "NOT_SUPPORTED",
+        "UNKNOWN"
+      ],
+      "title": "CompatibilityLevel",
+      "type": "string"
+    },
+    "CompatibilityProfile": {
+      "additionalProperties": false,
+      "description": "Full compatibility profile across ecosystems.",
+      "properties": {
+        "entries": {
+          "description": "Per-target compatibility entries",
+          "items": {
+            "$ref": "#/$defs/CompatibilityEntry"
+          },
+          "title": "Entries",
+          "type": "array"
+        },
+        "invocation_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "How the skill is invoked: prompt_only, tool_call, mcp_tool, cli_command, api_call, unknown",
+          "title": "Invocation Type"
+        },
+        "skill_md_format": {
+          "default": false,
+          "description": "Whether the skill uses SKILL.md format",
+          "title": "Skill Md Format",
+          "type": "boolean"
+        },
+        "mcp_compatible": {
+          "default": false,
+          "description": "Whether the skill works as or with MCP",
+          "title": "Mcp Compatible",
+          "type": "boolean"
+        },
+        "quality": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN",
+          "description": "Quality of compatibility data"
+        }
+      },
+      "title": "CompatibilityProfile",
+      "type": "object"
+    },
+    "Dependency": {
+      "additionalProperties": false,
+      "description": "A dependency required by a skill.",
+      "properties": {
+        "name": {
+          "description": "Dependency name",
+          "title": "Name",
+          "type": "string"
+        },
+        "version_constraint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Version constraint, e.g. >=1.0, ^2.0",
+          "title": "Version Constraint"
+        },
+        "required": {
+          "default": true,
+          "description": "Whether this dependency is required or optional",
+          "title": "Required",
+          "type": "boolean"
+        },
+        "source": {
+          "default": "unknown",
+          "description": "declared, inferred, unknown",
+          "title": "Source",
+          "type": "string"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Confidence if inferred",
+          "title": "Confidence"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Dependency",
+      "type": "object"
+    },
+    "Domain": {
+      "additionalProperties": false,
+      "description": "Domain classification for a skill.",
+      "properties": {
+        "primary": {
+          "$ref": "#/$defs/ProvenancedValue",
+          "description": "Primary domain classification"
+        },
+        "secondary": {
+          "description": "Secondary domain classifications",
+          "items": {
+            "type": "string"
+          },
+          "title": "Secondary",
+          "type": "array"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Overall domain classification confidence",
+          "title": "Confidence"
+        },
+        "source": {
+          "$ref": "#/$defs/DomainSource",
+          "default": "unknown",
+          "description": "How domain was determined"
+        },
+        "quality": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN",
+          "description": "Quality of domain extraction"
+        }
+      },
+      "title": "Domain",
+      "type": "object"
+    },
+    "DomainSource": {
+      "description": "How a domain classification was determined.",
+      "enum": [
+        "declared",
+        "inferred",
+        "reviewed",
+        "corrected",
+        "unknown"
+      ],
+      "title": "DomainSource",
+      "type": "string"
+    },
+    "EnvVarRequirement": {
+      "additionalProperties": false,
+      "description": "An environment variable required by a skill.",
+      "properties": {
+        "name": {
+          "description": "Environment variable name, e.g. OPENAI_API_KEY",
+          "title": "Name",
+          "type": "string"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "source": {
+          "default": "unknown",
+          "description": "declared, inferred, unknown",
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "EnvVarRequirement",
+      "type": "object"
+    },
+    "InputShape": {
+      "additionalProperties": false,
+      "description": "Describes the expected input format for a skill.",
+      "properties": {
+        "format": {
+          "default": "unknown",
+          "description": "Input format: natural_language, cli_command, file_path, json, unknown",
+          "title": "Format",
+          "type": "string"
+        },
+        "required": {
+          "description": "Required input fields/parameters",
+          "items": {
+            "type": "string"
+          },
+          "title": "Required",
+          "type": "array"
+        },
+        "optional": {
+          "description": "Optional input fields/parameters",
+          "items": {
+            "type": "string"
+          },
+          "title": "Optional",
+          "type": "array"
+        },
+        "json_schema": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON Schema for structured inputs",
+          "title": "Json Schema"
+        },
+        "quality": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN",
+          "description": "Quality of input shape extraction"
+        }
+      },
+      "title": "InputShape",
+      "type": "object"
+    },
+    "InstallMethod": {
+      "additionalProperties": false,
+      "description": "How a skill can be installed.",
+      "properties": {
+        "method": {
+          "description": "Installation method: npm, pip, npx, curl, git_clone, manual, unknown",
+          "title": "Method",
+          "type": "string"
+        },
+        "command": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact install command",
+          "title": "Command"
+        },
+        "target_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where the skill gets installed",
+          "title": "Target Path"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "required": [
+        "method"
+      ],
+      "title": "InstallMethod",
+      "type": "object"
+    },
+    "LicenseRecord": {
+      "additionalProperties": false,
+      "description": "License information for a skill or repository.",
+      "properties": {
+        "license_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "License identifier: MIT, Apache-2.0, proprietary, etc.",
+          "title": "License Type"
+        },
+        "detected_source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where license was detected: repo_license, file_header, declared, unknown",
+          "title": "Detected Source"
+        },
+        "status": {
+          "$ref": "#/$defs/LicenseStatus",
+          "default": "unknown"
+        },
+        "redistributable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether redistribution is allowed",
+          "title": "Redistributable"
+        },
+        "modifiable": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether modification is allowed",
+          "title": "Modifiable"
+        },
+        "commercial_restrictions": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether there are commercial use restrictions",
+          "title": "Commercial Restrictions"
+        },
+        "attribution_required": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Whether attribution is required",
+          "title": "Attribution Required"
+        },
+        "verified": {
+          "default": false,
+          "description": "Whether license has been verified by a human",
+          "title": "Verified",
+          "type": "boolean"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "title": "LicenseRecord",
+      "type": "object"
+    },
+    "LicenseStatus": {
+      "description": "License determination status.",
+      "enum": [
+        "verified",
+        "detected",
+        "declared",
+        "unknown",
+        "not_applicable"
+      ],
+      "title": "LicenseStatus",
+      "type": "string"
+    },
+    "LifecycleStatus": {
+      "description": "Skill lifecycle state.",
+      "enum": [
+        "current",
+        "stale",
+        "superseded",
+        "deprecated",
+        "archived",
+        "unknown"
+      ],
+      "title": "LifecycleStatus",
+      "type": "string"
+    },
+    "MetadataQuality": {
+      "description": "Quality status for extracted metadata fields.",
+      "enum": [
+        "COMPLETE",
+        "PARTIAL",
+        "LOW_CONFIDENCE",
+        "BROKEN_EXTRACTION",
+        "UNKNOWN"
+      ],
+      "title": "MetadataQuality",
+      "type": "string"
+    },
+    "MigrationMetadata": {
+      "additionalProperties": false,
+      "description": "Metadata about the migration/import of a record.",
+      "properties": {
+        "imported_from": {
+          "description": "Source format: registry_v2, parser_v1, manual, etc.",
+          "title": "Imported From",
+          "type": "string"
+        },
+        "imported_at": {
+          "description": "When this record was imported",
+          "format": "date-time",
+          "title": "Imported At",
+          "type": "string"
+        },
+        "original_values": {
+          "additionalProperties": true,
+          "description": "Original v2 values before normalization, keyed by field path",
+          "title": "Original Values",
+          "type": "object"
+        },
+        "normalization_notes": {
+          "description": "Notes about what was normalized during import",
+          "items": {
+            "type": "string"
+          },
+          "title": "Normalization Notes",
+          "type": "array"
+        },
+        "parser_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Version of the parser that produced this record",
+          "title": "Parser Version"
+        },
+        "extractor_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Version of the content extractor",
+          "title": "Extractor Version"
+        }
+      },
+      "required": [
+        "imported_from",
+        "imported_at"
+      ],
+      "title": "MigrationMetadata",
+      "type": "object"
+    },
+    "OutputShape": {
+      "additionalProperties": false,
+      "description": "Describes the output format produced by a skill.",
+      "properties": {
+        "format": {
+          "default": "unknown",
+          "description": "Output format: markdown, html, json, file, unknown",
+          "title": "Format",
+          "type": "string"
+        },
+        "json_schema": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "JSON Schema for structured outputs",
+          "title": "Json Schema"
+        },
+        "quality": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN",
+          "description": "Quality of output shape extraction"
+        }
+      },
+      "title": "OutputShape",
+      "type": "object"
+    },
+    "PackageRequirement": {
+      "additionalProperties": false,
+      "description": "A package/library required by a skill.",
+      "properties": {
+        "name": {
+          "description": "Package name, e.g. pypdf, playwright",
+          "title": "Name",
+          "type": "string"
+        },
+        "ecosystem": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Package ecosystem: pip, npm, cargo, etc.",
+          "title": "Ecosystem"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "source": {
+          "default": "unknown",
+          "description": "declared, inferred, unknown",
+          "title": "Source",
+          "type": "string"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "PackageRequirement",
+      "type": "object"
+    },
+    "ProvenancedValue": {
+      "additionalProperties": false,
+      "description": "A value with provenance tracking.\n\nWraps any field to record how the value was determined,\nits confidence level, and when it was set.",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "source": {
+          "default": "unknown",
+          "description": "How this value was determined: imported, inferred, reviewed, corrected, unknown",
+          "title": "Source",
+          "type": "string"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Confidence score 0.0-1.0, null if unknown",
+          "title": "Confidence"
+        },
+        "set_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When this value was last set or updated",
+          "title": "Set At"
+        }
+      },
+      "title": "ProvenancedValue",
+      "type": "object"
+    },
+    "QualityAssessment": {
+      "additionalProperties": false,
+      "description": "Quality assessment of a skill record.",
+      "properties": {
+        "overall_score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Overall quality score, derived from dimensions",
+          "title": "Overall Score"
+        },
+        "dimensions": {
+          "description": "Individual quality dimension scores",
+          "items": {
+            "$ref": "#/$defs/QualityDimension"
+          },
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "metadata_completeness": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN"
+        },
+        "documentation_quality": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN"
+        },
+        "specificity": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN"
+        },
+        "portability": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN"
+        },
+        "dependency_clarity": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN"
+        },
+        "maintainability": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN"
+        },
+        "testability": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN"
+        },
+        "extraction_confidence": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN"
+        }
+      },
+      "title": "QualityAssessment",
+      "type": "object"
+    },
+    "QualityDimension": {
+      "additionalProperties": false,
+      "description": "A single quality dimension score.",
+      "properties": {
+        "name": {
+          "description": "Dimension name",
+          "title": "Name",
+          "type": "string"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Score 0.0-1.0, null if not assessed",
+          "title": "Score"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "QualityDimension",
+      "type": "object"
+    },
+    "Relationship": {
+      "additionalProperties": false,
+      "description": "A directional relationship between two skills.",
+      "properties": {
+        "source_id": {
+          "description": "ID of the source skill",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "target_id": {
+          "description": "ID of the target skill",
+          "title": "Target Id",
+          "type": "string"
+        },
+        "relationship_type": {
+          "$ref": "#/$defs/RelationshipType",
+          "description": "Type of relationship"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Confidence in this relationship",
+          "title": "Confidence"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "source": {
+          "default": "unknown",
+          "description": "detected, declared, manual, unknown",
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "target_id",
+        "relationship_type"
+      ],
+      "title": "Relationship",
+      "type": "object"
+    },
+    "RelationshipType": {
+      "description": "Type of relationship between skills.",
+      "enum": [
+        "duplicate_of",
+        "near_duplicate_of",
+        "fork_of",
+        "inspired_by",
+        "supersedes",
+        "superseded_by",
+        "alternative_to",
+        "complements",
+        "depends_on",
+        "routes_to",
+        "child_of",
+        "parent_of"
+      ],
+      "title": "RelationshipType",
+      "type": "string"
+    },
+    "Repository": {
+      "additionalProperties": false,
+      "description": "A source repository that contains skills.",
+      "properties": {
+        "id": {
+          "description": "Repository identifier, e.g. 'mattpocock/skills'",
+          "title": "Id",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full repository URL",
+          "title": "Url"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "source_type": {
+          "$ref": "#/$defs/SourceType",
+          "default": "unknown",
+          "description": "Type of source"
+        },
+        "license": {
+          "$ref": "#/$defs/LicenseRecord",
+          "description": "Repository-level license"
+        },
+        "default_branch": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default Branch"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "ecosystem": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Primary ecosystem: claude, codex, generic, etc.",
+          "title": "Ecosystem"
+        },
+        "parser_compatibility": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Which parser works with this repo",
+          "title": "Parser Compatibility"
+        },
+        "last_successful_sync": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Successful Sync"
+        },
+        "sync_errors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sync Errors",
+          "type": "array"
+        },
+        "snapshots": {
+          "description": "Historical snapshots",
+          "items": {
+            "$ref": "#/$defs/RepositorySnapshot"
+          },
+          "title": "Snapshots",
+          "type": "array"
+        },
+        "skill_count": {
+          "default": 0,
+          "description": "Current known skill count",
+          "minimum": 0,
+          "title": "Skill Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "Repository",
+      "type": "object"
+    },
+    "RepositorySnapshot": {
+      "additionalProperties": false,
+      "description": "A point-in-time snapshot of repository metadata.",
+      "properties": {
+        "snapshot_at": {
+          "description": "When this snapshot was taken",
+          "format": "date-time",
+          "title": "Snapshot At",
+          "type": "string"
+        },
+        "commit_sha": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "HEAD commit at snapshot time",
+          "title": "Commit Sha"
+        },
+        "stars": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stars"
+        },
+        "forks": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Forks"
+        },
+        "open_issues": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Open Issues"
+        },
+        "archived": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Archived"
+        },
+        "default_branch": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default Branch"
+        },
+        "last_push": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Push"
+        },
+        "skill_count": {
+          "default": 0,
+          "description": "Number of skills found at snapshot time",
+          "minimum": 0,
+          "title": "Skill Count",
+          "type": "integer"
+        },
+        "release_tag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Release Tag"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "required": [
+        "snapshot_at"
+      ],
+      "title": "RepositorySnapshot",
+      "type": "object"
+    },
+    "RiskLevel": {
+      "description": "Security risk classification.",
+      "enum": [
+        "LOW",
+        "MODERATE",
+        "HIGH",
+        "SPECIALIZED",
+        "UNKNOWN"
+      ],
+      "title": "RiskLevel",
+      "type": "string"
+    },
+    "RuntimeRequirement": {
+      "additionalProperties": false,
+      "description": "Aggregate runtime requirements for a skill.",
+      "properties": {
+        "tools": {
+          "items": {
+            "$ref": "#/$defs/ToolRequirement"
+          },
+          "title": "Tools",
+          "type": "array"
+        },
+        "apis": {
+          "items": {
+            "$ref": "#/$defs/APIRequirement"
+          },
+          "title": "Apis",
+          "type": "array"
+        },
+        "packages": {
+          "items": {
+            "$ref": "#/$defs/PackageRequirement"
+          },
+          "title": "Packages",
+          "type": "array"
+        },
+        "env_vars": {
+          "items": {
+            "$ref": "#/$defs/EnvVarRequirement"
+          },
+          "title": "Env Vars",
+          "type": "array"
+        },
+        "runtimes": {
+          "description": "Required runtimes: python3, node, docker, etc.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Runtimes",
+          "type": "array"
+        },
+        "shell_required": {
+          "default": false,
+          "description": "Whether shell execution is needed",
+          "title": "Shell Required",
+          "type": "boolean"
+        },
+        "filesystem_write": {
+          "default": false,
+          "description": "Whether filesystem writes are needed",
+          "title": "Filesystem Write",
+          "type": "boolean"
+        },
+        "network_required": {
+          "default": false,
+          "description": "Whether network access is needed",
+          "title": "Network Required",
+          "type": "boolean"
+        },
+        "quality": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN",
+          "description": "Quality of dependency extraction"
+        }
+      },
+      "title": "RuntimeRequirement",
+      "type": "object"
+    },
+    "SecurityAssessment": {
+      "additionalProperties": false,
+      "description": "Security/risk metadata for a skill.",
+      "properties": {
+        "risk_level": {
+          "$ref": "#/$defs/RiskLevel",
+          "default": "UNKNOWN",
+          "description": "Overall risk classification"
+        },
+        "risk_factors": {
+          "description": "Specific risk factors identified",
+          "items": {
+            "type": "string"
+          },
+          "title": "Risk Factors",
+          "type": "array"
+        },
+        "shell_execution": {
+          "default": false,
+          "description": "Whether the skill executes shell commands",
+          "title": "Shell Execution",
+          "type": "boolean"
+        },
+        "filesystem_access": {
+          "default": false,
+          "description": "Whether the skill reads/writes filesystem",
+          "title": "Filesystem Access",
+          "type": "boolean"
+        },
+        "network_access": {
+          "default": false,
+          "description": "Whether the skill makes network requests",
+          "title": "Network Access",
+          "type": "boolean"
+        },
+        "browser_automation": {
+          "default": false,
+          "description": "Whether the skill automates browser actions",
+          "title": "Browser Automation",
+          "type": "boolean"
+        },
+        "credential_requirements": {
+          "description": "Credentials/API keys needed",
+          "items": {
+            "type": "string"
+          },
+          "title": "Credential Requirements",
+          "type": "array"
+        },
+        "package_installation": {
+          "default": false,
+          "description": "Whether the skill installs packages",
+          "title": "Package Installation",
+          "type": "boolean"
+        },
+        "destructive_potential": {
+          "default": false,
+          "description": "Whether the skill can perform destructive operations",
+          "title": "Destructive Potential",
+          "type": "boolean"
+        },
+        "security_tooling": {
+          "default": false,
+          "description": "Whether the skill is security/pentesting tooling",
+          "title": "Security Tooling",
+          "type": "boolean"
+        },
+        "review_status": {
+          "default": "not_reviewed",
+          "description": "not_reviewed, reviewed, approved, flagged",
+          "title": "Review Status",
+          "type": "string"
+        }
+      },
+      "title": "SecurityAssessment",
+      "type": "object"
+    },
+    "SimilarityDimension": {
+      "additionalProperties": false,
+      "description": "A single dimension of similarity scoring.",
+      "properties": {
+        "name": {
+          "description": "Dimension name: content_hash, name, capabilities, summary, etc.",
+          "title": "Name",
+          "type": "string"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Similarity score on this dimension",
+          "title": "Score"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "SimilarityDimension",
+      "type": "object"
+    },
+    "SimilarityRecord": {
+      "additionalProperties": false,
+      "description": "A similarity assessment between two skills.",
+      "properties": {
+        "skill_a_id": {
+          "description": "First skill ID",
+          "title": "Skill A Id",
+          "type": "string"
+        },
+        "skill_b_id": {
+          "description": "Second skill ID",
+          "title": "Skill B Id",
+          "type": "string"
+        },
+        "overall_score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Overall similarity score",
+          "title": "Overall Score"
+        },
+        "dimensions": {
+          "description": "Per-dimension similarity scores",
+          "items": {
+            "$ref": "#/$defs/SimilarityDimension"
+          },
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "classification": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Similarity classification: EXACT_DUPLICATE, NEAR_DUPLICATE, FUNCTIONAL_OVERLAP, etc.",
+          "title": "Classification"
+        },
+        "computed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When this similarity was computed (ISO datetime)",
+          "title": "Computed At"
+        }
+      },
+      "required": [
+        "skill_a_id",
+        "skill_b_id"
+      ],
+      "title": "SimilarityRecord",
+      "type": "object"
+    },
+    "Skill": {
+      "additionalProperties": false,
+      "description": "Canonical identity of a skill, independent of any specific version.\n\nA Skill persists across name changes, repo moves, content updates,\nand schema migrations. Its stable identity is the UUID5 id.",
+      "properties": {
+        "id": {
+          "description": "Stable UUID5 identifier, derived from canonical URL",
+          "title": "Id",
+          "type": "string"
+        },
+        "canonical_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-readable canonical key, e.g. 'mattpocock/skills/code-review'",
+          "title": "Canonical Key"
+        },
+        "name": {
+          "description": "Current canonical name",
+          "title": "Name",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-friendly display name",
+          "title": "Display Name"
+        },
+        "aliases": {
+          "description": "Known aliases for this skill",
+          "items": {
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array"
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/LifecycleStatus",
+          "default": "unknown",
+          "description": "Current lifecycle status"
+        },
+        "is_current": {
+          "default": true,
+          "description": "Whether this skill is considered current/active",
+          "title": "Is Current",
+          "type": "boolean"
+        },
+        "primary_source": {
+          "$ref": "#/$defs/ProvenancedValue",
+          "description": "Primary source repo (owner/repo)"
+        },
+        "primary_path": {
+          "$ref": "#/$defs/ProvenancedValue",
+          "description": "Primary skill path in repo"
+        },
+        "first_seen_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When this skill was first imported",
+          "title": "First Seen At"
+        },
+        "last_updated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When this skill was last updated",
+          "title": "Last Updated At"
+        },
+        "metadata_quality": {
+          "$ref": "#/$defs/MetadataQuality",
+          "default": "UNKNOWN",
+          "description": "Overall metadata quality status"
+        },
+        "version_count": {
+          "default": 0,
+          "description": "Number of imported versions",
+          "title": "Version Count",
+          "type": "integer"
+        },
+        "current_version_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ID of the current/latest version",
+          "title": "Current Version Id"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "primary_source",
+        "primary_path"
+      ],
+      "title": "Skill",
+      "type": "object"
+    },
+    "SkillSource": {
+      "additionalProperties": false,
+      "description": "Where a skill lives upstream.",
+      "properties": {
+        "repo": {
+          "description": "Repository identifier, e.g. mattpocock/skills",
+          "title": "Repo",
+          "type": "string"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Repository owner, e.g. mattpocock",
+          "title": "Owner"
+        },
+        "repo_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full repository URL",
+          "title": "Repo Url"
+        },
+        "skill_path": {
+          "description": "Path to the skill file within the repository",
+          "title": "Skill Path",
+          "type": "string"
+        },
+        "commit_sha": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Git commit SHA at time of import",
+          "title": "Commit Sha"
+        },
+        "branch": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Git branch or tag",
+          "title": "Branch"
+        },
+        "content_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "SHA256 hash of the skill file content",
+          "title": "Content Hash"
+        },
+        "source_type": {
+          "$ref": "#/$defs/SourceType",
+          "default": "unknown",
+          "description": "Type of source"
+        },
+        "upstream_created_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When the skill file was created upstream",
+          "title": "Upstream Created At"
+        },
+        "upstream_updated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When the skill file was last updated upstream",
+          "title": "Upstream Updated At"
+        }
+      },
+      "required": [
+        "repo",
+        "skill_path"
+      ],
+      "title": "SkillSource",
+      "type": "object"
+    },
+    "SkillVersion": {
+      "additionalProperties": false,
+      "description": "A specific imported version of a skill.\n\nCaptures the exact state of a skill at a point in time,\nincluding all extracted metadata and provenance.",
+      "properties": {
+        "skill_id": {
+          "description": "Canonical skill ID this version belongs to",
+          "title": "Skill Id",
+          "type": "string"
+        },
+        "version_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Unique version identifier (e.g. content_hash or sequential)",
+          "title": "Version Id"
+        },
+        "source": {
+          "$ref": "#/$defs/SkillSource",
+          "description": "Where this version was imported from"
+        },
+        "imported_at": {
+          "description": "When this version was imported",
+          "format": "date-time",
+          "title": "Imported At",
+          "type": "string"
+        },
+        "last_checked_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When upstream was last checked for changes",
+          "title": "Last Checked At"
+        },
+        "name": {
+          "description": "Skill name as extracted",
+          "title": "Name",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-friendly display name",
+          "title": "Display Name"
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Short description of the skill",
+          "title": "Summary"
+        },
+        "long_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full description or body content",
+          "title": "Long Description"
+        },
+        "domain": {
+          "$ref": "#/$defs/Domain",
+          "description": "Domain classification"
+        },
+        "capabilities": {
+          "description": "Skill capabilities",
+          "items": {
+            "$ref": "#/$defs/Capability"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "tags": {
+          "description": "Categorization tags",
+          "items": {
+            "$ref": "#/$defs/Tag"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "input_shape": {
+          "$ref": "#/$defs/InputShape",
+          "description": "Expected input format"
+        },
+        "output_shape": {
+          "$ref": "#/$defs/OutputShape",
+          "description": "Produced output format"
+        },
+        "declared_dependencies": {
+          "description": "Dependencies declared in the skill source",
+          "items": {
+            "$ref": "#/$defs/Dependency"
+          },
+          "title": "Declared Dependencies",
+          "type": "array"
+        },
+        "inferred_dependencies": {
+          "description": "Dependencies inferred from content analysis",
+          "items": {
+            "$ref": "#/$defs/Dependency"
+          },
+          "title": "Inferred Dependencies",
+          "type": "array"
+        },
+        "runtime_requirements": {
+          "$ref": "#/$defs/RuntimeRequirement",
+          "description": "Aggregate runtime requirements"
+        },
+        "compatibility": {
+          "$ref": "#/$defs/CompatibilityProfile",
+          "description": "Agent/ecosystem compatibility"
+        },
+        "install_methods": {
+          "description": "Known installation methods",
+          "items": {
+            "$ref": "#/$defs/InstallMethod"
+          },
+          "title": "Install Methods",
+          "type": "array"
+        },
+        "quality": {
+          "$ref": "#/$defs/QualityAssessment",
+          "description": "Quality assessment"
+        },
+        "security": {
+          "$ref": "#/$defs/SecurityAssessment",
+          "description": "Security/risk assessment"
+        },
+        "license": {
+          "$ref": "#/$defs/LicenseRecord",
+          "description": "License information"
+        },
+        "raw_content": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Raw file content, if captured",
+          "title": "Raw Content"
+        },
+        "migration": {
+          "$ref": "#/$defs/MigrationMetadata",
+          "description": "Migration/import metadata"
+        },
+        "ecosystem_metadata": {
+          "additionalProperties": true,
+          "description": "Original ecosystem metadata from source",
+          "title": "Ecosystem Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "skill_id",
+        "source",
+        "imported_at",
+        "name",
+        "migration"
+      ],
+      "title": "SkillVersion",
+      "type": "object"
+    },
+    "SourceType": {
+      "description": "Type of skill source.",
+      "enum": [
+        "github_repo",
+        "git_repo",
+        "url",
+        "local",
+        "unknown"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    },
+    "Tag": {
+      "additionalProperties": false,
+      "description": "A tag/label for categorization.",
+      "properties": {
+        "name": {
+          "description": "Tag text",
+          "title": "Name",
+          "type": "string"
+        },
+        "source": {
+          "default": "imported",
+          "description": "Where this tag came from: imported, inferred, manual",
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Tag",
+      "type": "object"
+    },
+    "ToolRequirement": {
+      "additionalProperties": false,
+      "description": "A CLI tool or binary required by a skill.",
+      "properties": {
+        "name": {
+          "description": "Tool name, e.g. ghidra, ffmpeg, docker",
+          "title": "Name",
+          "type": "string"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "source": {
+          "default": "unknown",
+          "description": "declared, inferred, unknown",
+          "title": "Source",
+          "type": "string"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ToolRequirement",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "SkillsBank universal agent-skill registry schema v3. Contains skill identities, versions, repositories, and relationships.",
+  "properties": {
+    "schema_version": {
+      "default": "3.0.0",
+      "description": "Registry schema version",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "generated_at": {
+      "description": "When this registry was generated",
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "skills": {
+      "description": "Canonical skill identities",
+      "items": {
+        "$ref": "#/$defs/Skill"
+      },
+      "title": "Skills",
+      "type": "array"
+    },
+    "versions": {
+      "description": "All skill versions",
+      "items": {
+        "$ref": "#/$defs/SkillVersion"
+      },
+      "title": "Versions",
+      "type": "array"
+    },
+    "repositories": {
+      "description": "Source repositories",
+      "items": {
+        "$ref": "#/$defs/Repository"
+      },
+      "title": "Repositories",
+      "type": "array"
+    },
+    "relationships": {
+      "description": "Skill-to-skill relationships",
+      "items": {
+        "$ref": "#/$defs/Relationship"
+      },
+      "title": "Relationships",
+      "type": "array"
+    },
+    "similarities": {
+      "description": "Computed similarity records",
+      "items": {
+        "$ref": "#/$defs/SimilarityRecord"
+      },
+      "title": "Similarities",
+      "type": "array"
+    },
+    "total_skills": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Total Skills",
+      "type": "integer"
+    },
+    "total_versions": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Total Versions",
+      "type": "integer"
+    },
+    "total_repos": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Total Repos",
+      "type": "integer"
+    },
+    "migrated_from": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Source registry version this was migrated from",
+      "title": "Migrated From"
+    },
+    "migration_notes": {
+      "description": "Notes about the migration process",
+      "items": {
+        "type": "string"
+      },
+      "title": "Migration Notes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "generated_at"
+  ],
+  "title": "SkillsBank Registry v3",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

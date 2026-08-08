@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Database (generated)
+skillsbank.db
+skillsbank.db-shm
+skillsbank.db-wal
+skillsbank.db-journal
+
+# Generated artifacts (not source)
+registry.v3.exported.json
+
+# SQLite temp files
+:memory:
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Alembic
+alembic/versions/*.pyc
+
+# Ruff
+.ruff_cache/
+
+# Build artifacts
+*.whl
+*.tar.gz
+*.pyc

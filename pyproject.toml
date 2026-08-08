@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skillsbank"
+version = "1.0.0"
+description = "Universal agent-skill registry — search, recommend, compose, and manage AI agent skills."
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "click>=8.0",
+    "fastapi>=0.100",
+    "uvicorn>=0.20",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.1",
+    "httpx",
+]
+
+[project.scripts]
+skillsbank = "skillsbank.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["skillsbank*"]
+
+[tool.setuptools.package-data]
+skillsbank = [
+    "alembic/*.ini",
+    "alembic/*.mako",
+    "alembic/README",
+    "alembic/versions/*.py",
+    "alembic/env.py",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration (deselect with '-m \"not integration\"')",
+]
+filterwarnings = [
+    "ignore:Using.*httpx.*starlette.*testclient.*deprecated:DeprecationWarning",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+ignore = [
+    "F401",   # unused imports — many are re-exports for public API
+    "BLE001", # blind exception — intentional in CLI/DB error handling
+    "PLW0602", # global variable — used for engine cache in CLI
+    "SIM102",  # collapsible if — readability preference
+    "RUF034",  # useless expression — used in some SQLAlchemy patterns
+    "PLC0206", # dict iteration — acceptable
+]
