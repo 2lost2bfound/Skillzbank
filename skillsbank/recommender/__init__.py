@@ -85,6 +85,13 @@ TASK_KEYWORDS: dict[str, list[str]] = {
     "api": ["api-design", "rest-api", "graphql", "api-testing"],
     "git": ["git-workflow", "version-control", "branching-strategy"],
     "docker": ["containerization", "docker-compose", "image-building"],
+    "pdf": ["document-creation", "document-formating", "pdf-processing", "pdf_processing"],
+    "document": ["documentation-writing", "technical-writing", "document-creation"],
+    "reverse": ["reverse-engineering", "binary-analysis", "reverse_engineering"],
+    "video": ["video-processing", "video-editing", "video", "video_processing", "video_editing"],
+    "image": ["image-processing", "image-generation", "image", "image_processing"],
+    "slides": ["presentation", "slides", "pptx"],
+    "spreadsheet": ["spreadsheet", "excel", "xlsx", "data-processing"],
 }
 
 
@@ -234,16 +241,17 @@ def _score_task_match(
     matched_terms = []
     for kw in task_keywords:
         kw_lower = kw.lower()
-        # Check capabilities
-        if any(kw_lower in cap for cap in cap_names):
+        kw_norm = re.sub(r"[-_]", "", kw_lower)
+        # Check capabilities (strip hyphens/underscores both sides for fuzzy match)
+        if any(kw_norm in re.sub(r"[-_]", "", cap.lower()) for cap in cap_names):
             matches += 2
             matched_terms.append(kw)
         # Check tags
-        elif any(kw_lower in tag for tag in tag_names):
+        elif any(kw_norm in re.sub(r"[-_]", "", tag.lower()) for tag in tag_names):
             matches += 1.5
             matched_terms.append(kw)
         # Check summary
-        elif kw_lower in summary_text:
+        elif kw_lower in summary_text or kw_norm in re.sub(r"[-_]", "", summary_text):
             matches += 1
             matched_terms.append(kw)
         # Check domain
@@ -411,7 +419,7 @@ def recommend(
                             skill_id=cand.id,
                             name=cand.name,
                             summary=version.summary if version else "",
-                            score=score * 0.4,  # task match weight
+                            score=score * 0.85,  # task match: primary relevance signal
                             reason=RecommendationReason.TASK_MATCH,
                             reason_detail=detail,
                             source_repo=version.source_repo if version else "",
@@ -487,11 +495,10 @@ def recommend(
                     )
                 )
 
-    # ── Popular / high-quality fallbacks ──
-    if not installed or len(all_recs) < limit:
+    # ── Popular / high-quality fallbacks (only when no task provided) ──
+    if not task:
         popular = _get_popular_skills(session, installed, limit=10)
         for skill_id, pop_score in popular:
-            # Avoid duplicates
             if any(r.skill_id == skill_id for r in all_recs):
                 continue
             version = session.query(VersionRow).filter(VersionRow.skill_id == skill_id).first()
@@ -511,7 +518,6 @@ def recommend(
                 )
             )
 
-    if not installed or len(all_recs) < limit:
         high_q = _get_high_quality_skills(session, installed, limit=10)
         for skill_id, q_score in high_q:
             if any(r.skill_id == skill_id for r in all_recs):

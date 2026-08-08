@@ -7,7 +7,19 @@ name = "skillsbank"
 version = "1.0.0"
 description = "Universal agent-skill registry — search, recommend, compose, and manage AI agent skills."
 license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
+readme = "README.md"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
     "pydantic>=2.0",
     "sqlalchemy>=2.0",
@@ -26,6 +38,13 @@ dev = [
 
 [project.scripts]
 skillsbank = "skillsbank.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/2lost2bfound/Skillzbank"
+"Repository" = "https://github.com/2lost2bfound/Skillzbank"
+"Issues" = "https://github.com/2lost2bfound/Skillzbank/issues"
+"Documentation" = "https://github.com/2lost2bfound/Skillzbank#readme"
+"Release Notes" = "https://github.com/2lost2bfound/Skillzbank/releases"
 
 [tool.setuptools.packages.find]
 include = ["skillsbank*"]
@@ -56,10 +75,10 @@ line-length = 120
 
 [tool.ruff.lint]
 ignore = [
-    "F401",   # unused imports — many are re-exports for public API
-    "BLE001", # blind exception — intentional in CLI/DB error handling
-    "PLW0602", # global variable — used for engine cache in CLI
-    "SIM102",  # collapsible if — readability preference
-    "RUF034",  # useless expression — used in some SQLAlchemy patterns
-    "PLC0206", # dict iteration — acceptable
+    "F401",
+    "BLE001",
+    "PLW0602",
+    "SIM102",
+    "RUF034",
+    "PLC0206",
 ]

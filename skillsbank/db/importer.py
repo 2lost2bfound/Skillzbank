@@ -230,12 +230,31 @@ def import_repo(session: Session, repo_data: dict) -> RepoRow:
     return row
 
 
-def import_v3_to_sqlite(session: Session, v3_path: str | Path) -> ImportStats:
+def _auto_normalize(session: Session) -> dict[str, int]:
+    """Run post-import normalization: taxonomy, FTS, scoring."""
+    from skillsbank.db.taxonomy_sync import normalize_db_capabilities
+    from skillsbank.scoring import sync_scoring_to_db
+    from skillsbank.search import rebuild_fts_index
+
+    tax_stats = normalize_db_capabilities(session)
+    score_stats = sync_scoring_to_db(session)
+    fts_stats = rebuild_fts_index(session)
+    return {
+        "taxonomy_normalized": tax_stats["normalized"],
+        "versions_scored": score_stats.get("versions_scored", 0),
+        "skills_fts_indexed": fts_stats["skills_indexed"],
+        "capabilities_fts_indexed": fts_stats["capabilities_indexed"],
+        "tags_fts_indexed": fts_stats["tags_indexed"],
+    }
+
+
+def import_v3_to_sqlite(session: Session, v3_path: str | Path, auto_prepare: bool = True) -> ImportStats:
     """Import a registry.v3.json file into the SQLite database.
 
     Args:
         session: SQLAlchemy session (caller manages transaction)
         v3_path: Path to registry.v3.json
+        auto_prepare: If True, auto-normalize taxonomy, score quality, and rebuild FTS
 
     Returns:
         ImportStats with counts and errors
@@ -272,4 +291,12 @@ def import_v3_to_sqlite(session: Session, v3_path: str | Path) -> ImportStats:
             stats.errors.append(f"version {ver_data.get('skill_id')}:{ver_data.get('version_id')}: {e}")
 
     session.commit()
+
+    if auto_prepare:
+        try:
+            prep_stats = _auto_normalize(session)
+            stats.__dict__.update(prep_stats)
+        except Exception as e:
+            stats.errors.append(f"auto_prepare: {e}")
+
     return stats
