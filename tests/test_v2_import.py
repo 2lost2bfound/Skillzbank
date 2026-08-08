@@ -29,8 +29,9 @@ from skillsbank.importers.v2_importer import (
 from skillsbank.models.registry import Registry
 from skillsbank.schema.generator import generate_schema
 
-# Path to the v2 registry
-V2_REGISTRY_PATH = Path("/home/k/skill indexer/registry.json")
+# Path to the v2 registry — relative to project root
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+V2_REGISTRY_PATH = _PROJECT_ROOT / "registry.json"
 V2_SKILL_COUNT = 1065
 V2_REPO_COUNT_IN_SOURCES = 18
 V2_TOTAL_REPOS = 36
