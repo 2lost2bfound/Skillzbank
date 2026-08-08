@@ -119,3 +119,85 @@ pytest -m "slow or integration"              → 16 passed
 - `docs/RELEASE_NOTES_v1.0.0.md`
 - `docs/PUBLIC_RELEASE_POLISH_REPORT.md`
 - `.github/ISSUE_TEMPLATE/skill_source.md`
+
+---
+
+## Final Remediation and Publication Verification
+
+**Date:** 2026-08-08  
+**Final commit:** `67981f2`
+
+### Fresh import auto-normalization
+
+| Property | Before | After |
+|----------|--------|-------|
+| Post-import taxonomy | 0% classified; needed `skillsbank normalize` | 100% classified automatically |
+| Post-import doctor | taxonomy issue highlighted | HEALTHY immediately |
+| Post-import FTS | empty; needed `skillsbank rebuild-fts` | populated automatically |
+| Post-import quality scores | none; needed separate scoring | all 1,065 versions scored |
+| Idempotency | preserved | preserved |
+| Regression tests | 0 | 11 tests (tests/test_regression.py) |
+
+Implementation: `import_v3_to_sqlite` now calls `normalize_db_capabilities`, `sync_scoring_to_db`, and `rebuild_fts_index` at the end of every import (controlled by `auto_prepare=True` default). The standalone `normalize` and `rebuild-fts` commands remain as maintenance tools.
+
+### Recommender relevance fix
+
+| Property | Before | After |
+|----------|--------|-------|
+| Task-match ranking | `score * 0.4`; high_quality signals dominated | `score * 0.85`; task_match primary |
+| high_quality fallback | Mixed into task results | Only when `task=""` (no task provided) |
+| Hyphen/underscore matching | Capability "pdfprocessing" vs keyword "pdf-processing" = no match | Normalized both sides (strip `[-_]`) |
+| Keyword mapping | Missing pdf, document, slides, spreadsheet, image, video | Added 6 new keyword categories |
+| Regression tests | 0 | 7 tests covering security, pdf, reverse, react, frontend tasks |
+| Penalty-free signal removal | N/A | No high_quality pollution when task is present |
+
+### Advisory scoring wording
+
+Verified that compatibility and security labels communicate advisory status:
+- Compatibility levels: `SUPPORTED`, `LIKELY_SUPPORTED`, `REQUIRES_ADAPTER`, `NOT_SUPPORTED` — clearly estimates, not certifications
+- Security risk levels: `LOW`, `MEDIUM`, `HIGH` — metadata risk flags from content patterns, not formal audits
+- README explicitly states: _"SkillsBank does not claim formal security certification of upstream skills"_ and _"Compatibility scores are advisory, not runtime proof"_
+
+No wording changes were needed — the existing labels are unambiguous.
+
+### PyPI readiness
+
+| Check | Result |
+|-------|--------|
+| pyproject metadata | `name`, `version`, `description`, `license`, `readme`, `classifiers`, `requires-python`, `dependencies`, `project.urls` |
+| twine check wheel | PASSED (no warnings) |
+| twine check sdist | PASSED (no warnings) |
+| README rendering | Markdown; compatible with PyPI |
+| Package name | `skillsbank` (not verified on PyPI — checked via `pip install`) |
+| Status | **PYPI_READY_NOT_PUBLISHED** |
+
+### Final test summary
+
+```text
+pytest --collect-only -q                     → 489 (was 478; +11 regression)
+pytest -m "not slow and not integration"      → 478 passed (was 462; +16 from slow migration to fast via regression)
+pytest -m "slow or integration"               → 11 passed (regression tests import full registry)
+```
+
+All 489 passed.
+
+### Final release
+
+| Property | Value |
+|----------|-------|
+| Tag | `v1.0.0` |
+| Tag commit | `67981f2332c69ec59fb9c301ecf4fcf06f2dc50a` |
+| Release | Published (not draft) |
+| URL | https://github.com/2lost2bfound/Skillzbank/releases/tag/v1.0.0 |
+| Wheel | `skillsbank-1.0.0-py3-none-any.whl` — SHA256 `b5e276da...` |
+| Sdist | `skillsbank-1.0.0.tar.gz` — SHA256 `cb295e66...` |
+| Checksums | `docs/RELEASE_CHECKSUMS_v1.0.0.txt` (attached to release) |
+| CI | Pass (run 31263773550 — lint, py3.11/12/13, integration, build) |
+
+### Remaining limitations (post-remediation)
+
+- Not published to PyPI (verified ready: PYPI_READY_NOT_PUBLISHED)
+- Compat/security scores are metadata estimates, not certifications
+- Recommender is deterministic keyword-based; no LLM or embeddings
+- Dedup not auto-run on import (computationally expensive — ~60s for full scan)
+- Annotation-only: Node.js 20 deprecation warnings in CI (actions/checkout@v4)
