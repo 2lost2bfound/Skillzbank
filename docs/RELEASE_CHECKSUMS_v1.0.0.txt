@@ -1,2 +1,2 @@
-b5e276da80222f9b21b6941f94395e5e83572c687b143f2fb43b0c7aa8a08811  dist/skillsbank-1.0.0-py3-none-any.whl
-cb295e665d992dafdaed7dc89e7db3204e7705729c4e5ced820cc117c8a6e5e5  dist/skillsbank-1.0.0.tar.gz
+98e0fb2c00d48d4aedd98dcc7a8dc893e38e299fb5c3d430ce6967046ad9ed93  dist/skillsbank-1.0.0-py3-none-any.whl
+035ba2f6cfb3c06ea2e7e474202921c718c07a7020145a49815bf5874a109543  dist/skillsbank-1.0.0.tar.gz
