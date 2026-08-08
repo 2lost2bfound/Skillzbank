@@ -20,13 +20,13 @@
 - Task-based recommendation engine (20 task categories)
 - Skill composition: sequential, parallel, pipeline strategies with conflict detection
 - Export formats: JSON (v3-compatible), Markdown, CSV
-- FastAPI REST API with 13 endpoints
-- Click CLI with 16 commands
+- FastAPI REST API with 13 application routes
+- Click CLI with 16 top-level commands
 - Health diagnostics (9 checks) and analytics (12 functions)
 - LRU cache, eager loading, composite indexes, SQLite pragmas
 - Input validation, secret detection, rate limiting, safe error handling
 - GitHub Actions CI (lint, test, integration, build)
-- 462 tests across 18 test files
+- 462 standard tests + 16 slow SQLite round-trip tests (478 collected)
 
 ### Registry Data
 

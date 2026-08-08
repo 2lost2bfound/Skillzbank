@@ -36,7 +36,7 @@ skillsbank/
 ├── perf/            # Performance optimization
 ├── security/        # Input validation + sanitization
 └── cli.py           # Click CLI
-tests/               # ~478 tests
+tests/               # 462 standard + 16 slow/integration (478 collected)
 docs/                # Documentation
 ```
 

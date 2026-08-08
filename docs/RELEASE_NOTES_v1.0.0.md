@@ -1,104 +1,111 @@
-# SkillsBank v1.0.0 Release Notes
+# SkillsBank v1.0.0 — Agent Skill Intelligence Layer
 
-**Release Date:** August 8, 2025
+**Release date:** 2026-08-08  
+**Tag:** `v1.0.0`  
+**License:** MIT
 
-## Overview
+## What it is
 
-SkillsBank v1.0.0 is the first stable release of a universal, ecosystem-agnostic registry of 1,000+ AI agent skills. It provides full-text search, recommendations, duplicate detection, quality scoring, and compatibility analysis across 36 repositories and 7 agent runtimes.
+SkillsBank is a **local-first, ecosystem-neutral intelligence layer** for AI agent skills. It normalizes skills from many GitHub sources into a SQLite registry you can search, compare, score, recommend, compose, and export — through a Click CLI and a FastAPI REST API.
 
-## What's Included
+It is not a place to *write* skills. It is the **index** for skills that already exist.
 
-### Registry Data
-- **1,065 skills** from 36 GitHub repositories
-- Sources: Anthropic, Google, Microsoft, NVIDIA, OpenAI, mattpocock, softaworks, and 28 community repos
-- 3,351 normalized capabilities across 17 categories
-- 4,405 tags
-- 7 agent compatibility profiles (Claude, Codex, OpenCode, Gemini, Cursor, MCP client, generic CLI)
+## v1.0.0 registry snapshot
 
-### Core Features
+Verified from the shipped `registry.v3.json` / imported database:
 
-**Search & Discovery**
-- FTS5 full-text search with BM25 ranking
-- Faceted filtering by domain, category, repository, quality, risk level
-- Prefix-based autocomplete
-- Task-based skill recommendations
+| Metric | Count |
+|-------:|------:|
+| Skills | 1,065 |
+| Versions | 1,065 |
+| Repositories | 36 |
+| Capabilities | 3,351 |
+| Tags | 4,405 |
+| Agent compatibility profiles | 7 |
 
-**Quality & Security**
-- 6-dimension quality scoring (documentation, metadata, freshness, adoption, dependency clarity, security posture)
-- 7-flag security assessment (shell, filesystem, network, browser, credentials, packages, destructive)
-- License detection with permission inference (20+ patterns)
+Re-run `skillsbank stats` after importing additional sources — snapshot numbers will change.
 
-**Analysis**
-- 5-dimension duplicate detection (name, summary, capabilities, content, source)
-- Dependency extraction and graph analysis
-- Agent compatibility profiling
-- Capability taxonomy normalization
+## Major capabilities
 
-**Composition & Export**
-- Multi-skill pipeline composition with conflict detection
-- Export to JSON (v3-compatible), Markdown, or CSV
-- Incremental sync with change tracking
+- **Search** — SQLite FTS5 + BM25, facets, filters, autocomplete
+- **Recommend** — multi-signal ranking for natural-language tasks
+- **Compose** — multi-skill workflows with conflict detection
+- **Taxonomy** — 17 categories, 100+ canonical capabilities
+- **Dedup** — exact / near / functional overlap / related
+- **Dependencies** — packages, APIs, CLI tools, runtimes, env vars
+- **Compatibility** — Claude, Codex, OpenCode, Gemini, Cursor, MCP client, generic CLI
+- **Scoring** — quality dimensions, license patterns, security risk flags
+- **Sync** — content hashes, changelog, version preservation
+- **Export** — JSON (registry schema v3), Markdown, CSV
+- **Doctor / analytics** — health checks and coverage reports
 
-**Interfaces**
-- Click CLI with 16 commands
-- FastAPI REST API with 13 endpoints
-- SQLite database with Alembic migrations
+### SEARCH · RECOMMEND · COMPOSE
 
-### Technical Details
+| Operation | Question |
+|-----------|----------|
+| Search | I roughly know the capability — find skills |
+| Recommend | I know the task — rank fitting skills |
+| Compose | I have skill IDs — build an ordered workflow |
 
-- **Python:** 3.11+
-- **Dependencies:** SQLAlchemy 2.x, Pydantic v2, Click, FastAPI, uvicorn
-- **Database:** SQLite with WAL mode, FTS5, composite indexes
-- **Tests:** 462 tests across 18 test files
-- **License:** MIT
+See the README demo asset: `docs/assets/skillsbank-demo.svg`.
 
-## Installation
+## Local-first architecture
 
-```bash
-pip install skillsbank
-```
+Core operations do not require a hosted DB, vector DB, LLM API, embeddings API, or SaaS search provider. Stack:
 
-Or from source:
+- Python 3.11+
+- **Pydantic v2** domain models
+- **Registry schema v3** JSON format (`registry.v3.json`)
+- SQLAlchemy 2.x + SQLite + Alembic
+- FTS5 / BM25
+- Click + FastAPI / Uvicorn
+
+## Interfaces
+
+- **CLI:** 16 top-level commands (`search`, `recommend`, `compose`, `import`, `doctor`, …)
+- **API:** 13 application routes under a local Uvicorn process
+- **Package:** `pip install .` from this repository (not on PyPI yet)
+
+## Testing and release audit
+
+| Suite | Count |
+|-------|------:|
+| Standard tests | 462 |
+| Slow SQLite round-trip | 16 |
+| Collected total | 478 |
+
+A 25-part release audit fixed fresh-DB init, idempotent import, build backend, version metadata, and packaging of Alembic migrations. Details: [`RELEASE_AUDIT_V1.0.0.md`](RELEASE_AUDIT_V1.0.0.md).
+
+## Install
 
 ```bash
 git clone https://github.com/2lost2bfound/Skillzbank.git
 cd Skillzbank
-pip install -e .
+python3 -m venv .venv && source .venv/bin/activate
+pip install .
 skillsbank import registry.v3.json
-```
-
-## Quick Start
-
-```bash
-# Search for security skills
-skillsbank search "security audit"
-
-# Get recommendations for a task
-skillsbank recommend "build a REST API with authentication"
-
-# Browse by domain
-skillsbank skills list --domain ml --limit 10
-
-# Export
-skillsbank export json skills.json
-
-# Health check
+skillsbank rebuild-fts
 skillsbank doctor
+skillsbank search "security audit"
 ```
 
-## Breaking Changes
+Or install the release wheel from GitHub Releases, then import `registry.v3.json` from the source tree (registry data ships in the repository).
 
-None (first release).
+## Known limitations
 
-## Known Limitations
+- Not published to PyPI in v1.0.0
+- Recommendation quality depends on taxonomy coverage and keyword signals (no embeddings required, and none used by default)
+- Compatibility scores are advisory, not runtime proof
+- Many upstream skills lack structured dependency/license metadata; inference is best-effort
+- Security scoring flags patterns; it is not a substitute for human review or formal audit
+- Incremental upstream GitHub sync is implemented as change-tracking primitives — bulk re-crawl of the open web is out of scope for this release
 
-- Registry data is a point-in-time snapshot; no automatic GitHub syncing yet
-- Quality scores depend on content available in SKILL.md files
-- Some community repos may have incomplete metadata
+## Contributing
 
-## What's Next
+See [`../CONTRIBUTING.md`](../CONTRIBUTING.md). Good first work: new source repos, parser fixes, taxonomy corrections, dependency patterns, docs.
 
-- Automatic registry syncing from GitHub
-- Web UI for browsing and comparing skills
-- Plugin system for custom parsers and scorers
-- Skill versioning and update notifications
+## Links
+
+- Repository: https://github.com/2lost2bfound/Skillzbank
+- README: https://github.com/2lost2bfound/Skillzbank#readme
+- Security policy: [`../SECURITY.md`](../SECURITY.md)

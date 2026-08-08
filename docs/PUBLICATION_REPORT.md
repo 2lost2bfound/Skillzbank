@@ -29,7 +29,7 @@ SkillsBank v1.0.0 has been successfully published to GitHub. The release include
 ### Code Quality
 - [x] Ruff lint: All checks passed
 - [x] Ruff format: All files formatted
-- [x] 462/462 tests passing
+- [x] 462 standard tests + 16 integration tests
 - [x] No secrets in source code
 - [x] No hardcoded paths
 
@@ -126,7 +126,7 @@ skillsbank/            (16 modules)
   security/
   sync/
   taxonomy/
-tests/                 (18 test files, 462 tests)
+tests/                 (18 test files, 462 standard + 16 integration)
 ```
 
 ## Post-Publication Tasks

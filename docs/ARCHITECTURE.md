@@ -129,7 +129,7 @@ Each module is self-contained with its own tests:
 18 Click commands with `--db`, `--json`, `--compact` global options.
 
 #### API (`skillsbank/api/`)
-FastAPI with 13 endpoints. Uses module-level engine/session pattern with `_init_engine()`.
+FastAPI with 13 application routes (plus OpenAPI/docs). Uses module-level engine/session pattern with `_init_engine()`.
 
 #### Exports (`skillsbank/exports/`)
 JSON (v3-compatible), Markdown (grouped by domain), CSV with filtering.
